@@ -1,0 +1,85 @@
+GitHub Solution Repo : https://github.com/quickSilverShanks/MLOps---Mage--Zoomcamp
+Input data location : https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+
+Assignment Steps and Solutions:
+
+
+Step 01:
+-- git clone https://github.com/mage-ai/mlops.git
+-- Open in git codespaces and open in vs code desktop application. Close the codespaces browser page.
+
+Step 02:
+-- Open terminal in vscode and check pwd(will show the project folder location).
+-- Type 'cd' in terminal and go to root folder.
+-- Check files using 'ls -a'. It will not have '.gitignore' file which is required.
+-- Create this file using 'touch .gitignore'.
+-- Go back to project folder it was showing in the beginning.
+-- Run './scripts/start.sh'.
+
+Step 03:
+-- This will run the script and forward two ports : 5432 & 6789
+-- Open mage in browser through the url : http://127.0.0.1:6789/
+-- Notice the version of mage on top right : [Solution1 : v0.9.71]
+
+Step 04:
+-- Right click on 'mlops' folder on left side of mage ui from the files tab.
+-- Click on 'New Mage Project'. Provide the project name : 'assignment_03'.
+-- Go to Settings tab and then select settings. Click on 'Register project'.
+-- Scroll down to the newly registered project with random name and change its name and path to 'assignment_03'.
+-- Toggle currently selected project to 'on' for this project anmd save settings.
+
+Step 05:
+-- Go to overview tab of this new project.
+-- Click 'New pipeline' --> 'Standard (batch)'. Provide the name 'assignment_03_pipeline' and click 'Create'.
+-- Go to the file mlops-->assignment_03-->metadata.yaml and check no. of lines : [Solution2 : 55]
+
+Step 06:
+-- In the 'assignment_03' project's pipeline tab click on 'All blocks' --> 'Data loader' --> 'Basic template (generic)'.
+-- Provide the name 'load_dataset' and click 'Save and add'.
+-- Modify the code to read the required data in function 'load_data' and return it.
+-- Run the block and check no. of records loaded : [Solution3 : 3403766]
+
+Step 07:
+-- Click on 'All blocks' --> 'Transformer' --> 'Basic template (generic)' and give the name 'transform_dataset'. Click on 'Save and add'.
+-- Modify 'transform' function to handle data transformation. Run block.
+-- Check the no. of records in transformed data : [Solution4 : 3316216]
+
+Step 08:
+-- Click on 'All blocks' --> 'Transformer' --> 'Basic template (generic)' and give the name 'train_model'. Click on 'Save and add'.
+-- Modify the function 'transform' as required and run block.
+-- Check the intercept printed in block output : [Solution5 : 24.7720]
+
+Step 09:
+-- Stop the container from running by going to terminal in vscode and pressing ctrl+c.
+-- Create a file 'mlflow.dockerfile' in the folder that contains mlflow folder with following content:
+	FROM python:3.10-slim
+	
+	RUN pip install mlflow==2.12.1
+	
+	EXPOSE 5000
+	
+	CMD [ \
+	    "mlflow", "server", \
+	    "--backend-store-uri", "sqlite:///home/mlflow/mlflow.db", \
+	    "--host", "0.0.0.0", \
+	    "--port", "5000" \
+	]
+-- Open 'docker-compose.yml' and copy below lines in services:
+	mlflow:
+	  build:
+	    context: .
+	    dockerfile: mlflow.dockerfile
+	  ports:
+	    - "5000:5000"
+	  volumes:
+	    - "${PWD}/mlflow:/home/mlflow/"
+	  networks:
+	    - app-network
+-- Run the command in terminal : ./scripts/start.sh
+-- Open mage and mlflow in browser using urls : http://localhost:6789 http://localhost:5000
+
+Step 10:
+-- Click on 'All blocks' --> 'Data exporter' --> 'Basic template (generic)' and give the name 'save_model'. Click on 'Save and add'.
+-- Modify the function 'export_data' as required and run block.
+-- Once code execution completes, it will be logged in mlflow. Click on the corresponding experiment and run in mlflow and go to artifacts tab.
+-- Go to MLmodel and check its 'model_size_bytes' : [Solution6 : 4534]
