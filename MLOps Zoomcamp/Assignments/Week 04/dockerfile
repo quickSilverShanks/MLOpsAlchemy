@@ -1,0 +1,17 @@
+# Use the specified base image
+FROM agrigorev/zoomcamp-model:mlops-2024-3.10.13-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the script and pipenv files into the container | model.bin is not uploaded since its already available in base image.
+COPY ["model_scorer.py" "./"]
+COPY ["pipfile" "pipfile.lock" "./"]
+
+# Install necessary Python packages (if any)
+RUN pip install -U pip
+RUN pip install pipenv
+RUN pipenv install --system --deploy
+
+# Set the command to run your script
+CMD ["python", "model_scorer.py", "2023", "5"]
